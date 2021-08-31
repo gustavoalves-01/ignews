@@ -3,11 +3,22 @@ import { GetStaticProps } from "next";
 import Head from "next/head";
 import Prismic from '@prismicio/client'
 import { getPrismicClient } from "../../services/prismic";
+import { RichText } from "prismic-dom"
 
 
 import styles from "./styles.module.scss";
 
-export default function Posts() {
+interface Post {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updadtedAt: string;
+}
+interface PostsProps {
+  posts: Post[];
+}
+
+export default function Posts({posts}: PostsProps) {
   return (
     <>
       <Head>
@@ -15,26 +26,13 @@ export default function Posts() {
       </Head>
       <main className={styles.container}>
         <div className={styles.posts}>
+          {posts.map(post => (
           <a href="">
-            <time>17 de agosto de 2021</time>
-            <strong>Creating a Monorepo with Lenna</strong>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia dolores aperiam aliquid molestias maxime natus dignissimos. Repellendus laborum cum labore dolores, nihil maxime! Cumque suscipit modi aut libero fuga ad.</p>
+            <time>{post.updadtedAt}</time>
+            <strong>{post.title}</strong>
+            <p>{post.excerpt}</p>
           </a>
-          <a href="">
-            <time>17 de agosto de 2021</time>
-            <strong>Creating a Monorepo with Lenna</strong>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia dolores aperiam aliquid molestias maxime natus dignissimos. Repellendus laborum cum labore dolores, nihil maxime! Cumque suscipit modi aut libero fuga ad.</p>
-          </a>
-          <a href="">
-            <time>17 de agosto de 2021</time>
-            <strong>Creating a Monorepo with Lenna</strong>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia dolores aperiam aliquid molestias maxime natus dignissimos. Repellendus laborum cum labore dolores, nihil maxime! Cumque suscipit modi aut libero fuga ad.</p>
-          </a>
-          <a href="">
-            <time>17 de agosto de 2021</time>
-            <strong>Creating a Monorepo with Lenna</strong>
-            <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Officia dolores aperiam aliquid molestias maxime natus dignissimos. Repellendus laborum cum labore dolores, nihil maxime! Cumque suscipit modi aut libero fuga ad.</p>
-          </a>
+          ))}
         </div>
       </main>
     </>
@@ -50,8 +48,21 @@ export const getStaticProps: GetStaticProps = async () => {
     pageSize: 100,
   })
 
+  const posts = response.results.map(post => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? '',
+      updadtedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })
+    }
+  })
+
   console.log(JSON.stringify(response, null, 2));
   return {
-    props: {}
+    props: {posts}
   }
 }
