@@ -2,7 +2,7 @@ import { GetStaticProps } from 'next'
 
 import Head from 'next/head';
 
-import { SubscribeButton } from '../components/SubscribeButton/indes';
+import { SubscribeButton } from '../components/SubscribeButton/index';
 import { stripe } from '../services/stripe';
 
 import styles from './home.module.scss'
